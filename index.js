@@ -33,8 +33,9 @@
 
 	// switch currently rendered mode
 	function setRenderMode(id) {
-		if (renderModes[id] && renderModes[id].render) {
-			currentRenderMode = renderModes[id];
+		const mode = renderModes.find(item => (item.id === id));
+		if (mode) {
+			currentRenderMode = mode;
 		}
 	}
 
@@ -43,202 +44,210 @@
 		return a+x*(b-a);
 	}
 
-	const renderModes = [];
-	// trippy cycling circles
-	renderModes[0] = {
-		name: 'Trippy swirls',
-		render: function(x, y, timestamp) {
-			// slow down time iteration
-			const t = timestamp/8;
-			const xf = x/2;
-			const yf = y/2;
+	const renderModes = [
+		// trippy cycling circles
+		{
+			id: 1,
+			name: 'Trippy swirls',
+			render: function(x, y, timestamp) {
+				// slow down time iteration
+				const t = timestamp/8;
+				const xf = x/2;
+				const yf = y/2;
 
-			const value = {
-				red: Math.floor((255 + (xf)) % 255),
-				green: Math.floor((255 + (xf*yf*42) + t) % 255),
-				blue: Math.floor((255 + (yf * (Math.sin(t*0.0055)))) % 255),
-				alpha: 255
+				const value = {
+					red: Math.floor((255 + (xf)) % 255),
+					green: Math.floor((255 + (xf*yf*42) + t) % 255),
+					blue: Math.floor((255 + (yf * (Math.sin(t*0.0055)))) % 255),
+					alpha: 255
+				}
+				return value;
 			}
-			return value;
-		}
-	}
-	// stripes
-	renderModes[1] = {
-		name: 'BW stripes',
-		render: function(x, y, timestamp) {
-			const len = random.length;
-			const hash = (len + x + y) % len;
-			const intensity = random[hash];
+		},
+		// stripes
+		{
+			id: 2,
+			name: 'BW stripes',
+			render: function(x, y, timestamp) {
+				const len = random.length;
+				const hash = (len + x + y) % len;
+				const intensity = random[hash];
 
-			const value = {
-				red: 255 * intensity,
-				green: 255 * intensity,
-				blue: 255 * intensity,
-				alpha: 255
+				const value = {
+					red: 255 * intensity,
+					green: 255 * intensity,
+					blue: 255 * intensity,
+					alpha: 255
+				}
+				return value;
 			}
-			return value;
-		}
-	}
-	// black and white random noise
-	renderModes[2] = {
-		name: 'BW White noise',
-		render: function(x, y, timestamp) {
-			const xi = parseInt(x) & 255;
-			const yi = parseInt(y) & 255;
-			const hash = permutation[permutation[xi] + permutation[yi]];
-			const intensity = random[hash];
+		},
+		// black and white random noise
+		{
+			id: 3,
+			name: 'BW White noise',
+			render: function(x, y, timestamp) {
+				const xi = parseInt(x) & 255;
+				const yi = parseInt(y) & 255;
+				const hash = permutation[permutation[xi] + permutation[yi]];
+				const intensity = random[hash];
 
-			const value = {
-				red: 255 * intensity,
-				green: 255 * intensity,
-				blue: 255 * intensity,
-				alpha: 255
+				const value = {
+					red: 255 * intensity,
+					green: 255 * intensity,
+					blue: 255 * intensity,
+					alpha: 255
+				}
+				return value;
 			}
-			return value;
-		}
-	}
-	// color gradient tiling noise
-	renderModes[3] = {
-		name: 'RGB gradient tiling noise',
-		render: function(x, y, timestamp) {
-			const xw = x & 255;
-			const yw = y & 255;
+		},
+		// color gradient tiling noise
+		{
+			id: 4,
+			name: 'RGB gradient tiling noise',
+			render: function(x, y, timestamp) {
+				const xw = x & 255;
+				const yw = y & 255;
 
-			const xi = parseInt(xw);
-			const yi = parseInt(yw);
-			const xt = xw - xi;
-			const yt = yw - yi;
+				const xi = parseInt(xw);
+				const yi = parseInt(yw);
+				const xt = xw - xi;
+				const yt = yw - yi;
 
-			const aa = random[p[p[xi] + p[yi]]];
-			const ba = random[p[p[xi+1] + p[yi]]];
+				const aa = random[p[p[xi] + p[yi]]];
+				const ba = random[p[p[xi+1] + p[yi]]];
 
-			const ab = random[p[p[xi] + p[yi+1]]];
-			const bb = random[p[p[xi+1] + p[yi+1]]];
+				const ab = random[p[p[xi] + p[yi+1]]];
+				const bb = random[p[p[xi+1] + p[yi+1]]];
 
-			const x1 = lerp(aa, ba, xt);
-			const x2 = lerp(ab, ba, xt);
-			const y1 = lerp(x1, x2, yt);
+				const x1 = lerp(aa, ba, xt);
+				const x2 = lerp(ab, ba, xt);
+				const y1 = lerp(x1, x2, yt);
 
-			const intensity = y1;
+				const intensity = y1;
 
-			const value = {
-				red: (xw * intensity),
-				green: (yw * intensity),
-				blue: (255 * intensity),
-				alpha: 255
+				const value = {
+					red: (xw * intensity),
+					green: (yw * intensity),
+					blue: (255 * intensity),
+					alpha: 255
+				}
+				return value;
 			}
-			return value;
-		}
-	}
-	// eye burn seizure-tastic animated noise
-	renderModes[4] = {
-		name: 'RGB eyeburn (SEIZURE TIME WARNING)',
-		render: function(x, y, timestamp) {
-			const xw = x & 255;
-			const yw = y & 255;
+		},
+		// eye burn seizure-tastic animated noise
+		{
+			id: 5,
+			name: 'RGB eyeburn (SEIZURE TIME WARNING)',
+			render: function(x, y, timestamp) {
+				const xw = x & 255;
+				const yw = y & 255;
 
-			const xi = parseInt(xw);
-			const yi = parseInt(yw);
-			const xt = xw - xi;
-			const yt = yw - yi;
+				const xi = parseInt(xw);
+				const yi = parseInt(yw);
+				const xt = xw - xi;
+				const yt = yw - yi;
 
-			const aa = random[p[p[xi] + p[yi]]];
-			const ba = random[p[p[xi+1] + p[yi]]];
+				const aa = random[p[p[xi] + p[yi]]];
+				const ba = random[p[p[xi+1] + p[yi]]];
 
-			const ab = random[p[p[xi] + p[yi+1]]];
-			const bb = random[p[p[xi+1] + p[yi+1]]];
+				const ab = random[p[p[xi] + p[yi+1]]];
+				const bb = random[p[p[xi+1] + p[yi+1]]];
 
-			const x1 = lerp(aa, ba, xt);
-			const x2 = lerp(ab, ba, xt);
-			const y1 = lerp(x1, x2, yt);
+				const x1 = lerp(aa, ba, xt);
+				const x2 = lerp(ab, ba, xt);
+				const y1 = lerp(x1, x2, yt);
 
-			const intensity = y1;
+				const intensity = y1;
 
-			const t = timestamp/8;
+				const t = timestamp/8;
 
-			const value = {
-				red: (255 + (x * intensity / 2 * t)) % 255,
-				green: (255 + (y * intensity / 2 * t)) % 255,
-				blue: (255 + (255 * intensity / 2 * t)) % 255,
-				alpha: 255
+				const value = {
+					red: (255 + (x * intensity / 2 * t)) % 255,
+					green: (255 + (y * intensity / 2 * t)) % 255,
+					blue: (255 + (255 * intensity / 2 * t)) % 255,
+					alpha: 255
+				}
+				return value;
 			}
-			return value;
-		}
-	}
-	// nice gradient on noise
-	renderModes[5] = {
-		name: 'RGB noise gradient',
-		render: function(x, y, timestamp) {
-			const xw = x & 255;
-			const yw = y & 255;
+		},
+		// nice gradient on noise
+		{
+			id: 6,
+			name: 'RGB noise gradient',
+			render: function(x, y, timestamp) {
+				const xw = x & 255;
+				const yw = y & 255;
 
-			const xi = parseInt(xw);
-			const yi = parseInt(yw);
-			const xt = xw - xi;
-			const yt = yw - yi;
+				const xi = parseInt(xw);
+				const yi = parseInt(yw);
+				const xt = xw - xi;
+				const yt = yw - yi;
 
-			const aa = random[p[p[xi] + p[yi]]];
-			const ba = random[p[p[xi+1] + p[yi]]];
+				const aa = random[p[p[xi] + p[yi]]];
+				const ba = random[p[p[xi+1] + p[yi]]];
 
-			const ab = random[p[p[xi] + p[yi+1]]];
-			const bb = random[p[p[xi+1] + p[yi+1]]];
+				const ab = random[p[p[xi] + p[yi+1]]];
+				const bb = random[p[p[xi+1] + p[yi+1]]];
 
-			const x1 = lerp(aa, ba, xt);
-			const x2 = lerp(ab, ba, xt);
-			const y1 = lerp(x1, x2, yt);
+				const x1 = lerp(aa, ba, xt);
+				const x2 = lerp(ab, ba, xt);
+				const y1 = lerp(x1, x2, yt);
 
-			const intensity = y1;
+				const intensity = y1;
 
-			const t = timestamp/8;
+				const t = timestamp/8;
 
-			const value = {
-				red: (255 + (x * intensity / 2)) % 255,
-				green: (255 + (y * intensity / 2)) % 255,
-				blue: (255 + (255 * intensity / 2)) % 255,
-				alpha: 255
+				const value = {
+					red: (255 + (x * intensity / 2)) % 255,
+					green: (255 + (y * intensity / 2)) % 255,
+					blue: (255 + (255 * intensity / 2)) % 255,
+					alpha: 255
+				}
+				return value;
 			}
-			return value;
-		}
-	}
-	// pixel noise using repeatable lattice
-	renderModes[6] = {
-		name: 'RGB pixel noise',
-		render: function(x, y, timestamp) {
-			const latticeSize = 20;
-			const steps = 255;
-			const xSteps = x / (steps) * latticeSize;
-			const ySteps = y / (steps) * latticeSize;
-			const xw = xSteps & 255;
-			const yw = ySteps & 255;
+		},
+		// pixel noise using repeatable lattice
+		{
+			id: 7,
+			name: 'RGB pixel noise',
+			render: function(x, y, timestamp) {
+				const latticeSize = 20;
+				const steps = 255;
+				const xSteps = x / (steps) * latticeSize;
+				const ySteps = y / (steps) * latticeSize;
+				const xw = xSteps & 255;
+				const yw = ySteps & 255;
 
-			const xi = parseInt(xw);
-			const yi = parseInt(yw);
-			const xt = xw - xi;
-			const yt = yw - yi;
+				const xi = parseInt(xw);
+				const yi = parseInt(yw);
+				const xt = xw - xi;
+				const yt = yw - yi;
 
-			const aa = random[p[p[xi] + p[yi]]];
-			const ba = random[p[p[xi+1] + p[yi]]];
+				const aa = random[p[p[xi] + p[yi]]];
+				const ba = random[p[p[xi+1] + p[yi]]];
 
-			const ab = random[p[p[xi] + p[yi+1]]];
-			const bb = random[p[p[xi+1] + p[yi+1]]];
+				const ab = random[p[p[xi] + p[yi+1]]];
+				const bb = random[p[p[xi+1] + p[yi+1]]];
 
-			const x1 = lerp(aa, ba, xt);
-			const x2 = lerp(ab, ba, xt);
-			const y1 = lerp(x1, x2, yt);
+				const x1 = lerp(aa, ba, xt);
+				const x2 = lerp(ab, ba, xt);
+				const y1 = lerp(x1, x2, yt);
 
-			const intensity = y1;
+				const intensity = y1;
 
-			const t = timestamp/8;
+				const t = timestamp/8;
 
-			const value = {
-				red: (255 + (x * intensity / 2)) % 255,
-				green: (255 + (y * intensity / 2)) % 255,
-				blue: (255 + (255 * intensity / 2)) % 255,
-				alpha: 255
+				const value = {
+					red: (255 + (x * intensity / 2)) % 255,
+					green: (255 + (y * intensity / 2)) % 255,
+					blue: (255 + (255 * intensity / 2)) % 255,
+					alpha: 255
+				}
+				return value;
 			}
-			return value;
-		}
-	}
+		},
+	];
 
 	function drawPixels(canvas, timestamp, renderMode) {
 		const ctx = canvas.getContext('2d');
@@ -278,8 +287,13 @@
 			renderModeSelect.removeChild(renderModeSelect.lastChild);
 		}
 		for (let i=0; i<renderModes.length; i++) {
+			const mode = renderModes[i];
 			const modeOpt = document.createElement('option');
-			modeOpt.value = i;
+			modeOpt.value = mode.id;
+			if (mode.id === currentRenderMode.id) {
+				console.log('selected '+mode.id);
+				modeOpt.selected = true;
+			}
 			renderModeSelect.appendChild(modeOpt);
 
 			const modeOptTextNode = document.createTextNode(renderModes[i].name || 'Untitled');
@@ -308,7 +322,7 @@
 		canvas.width = 500;
 		canvas.height = 500;
 		seedRandom();
-		setRenderMode(1);
+		setRenderMode(6);
 		initDraw(canvas);
 		initControls();
 		console.log('Ready');
