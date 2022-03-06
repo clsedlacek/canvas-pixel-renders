@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Noise</title>
+	</head>
+	<style type="text/css">
+		html {
+			font-family: Helvetica, Arial, sans-serif;
+		}
+
+		h1 {
+			font-size: 1.5rem;
+		}
+
+		#controls {
+			margin-bottom: 1rem;
+		}
+	</style>
+	<body>
+		<h1>Noise</h1>
+		<div id="controls">
+			<select id="render-mode"></select>
+			<button id="reseed-rng">Reseed P-RNG</button>
+		</div>
+		<canvas id="canvas" style="border: 1px solid #000"></canvas>
+	</body>
+	<script type="text/javascript" src="index.js"></script>
+</html>
