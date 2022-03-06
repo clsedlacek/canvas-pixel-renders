@@ -57,7 +57,7 @@
 		// trippy cycling circles
 		{
 			id: 1,
-			name: 'Trippy swirls',
+			name: 'Animated - Trippy swirls',
 			render: function(x, y, timestamp) {
 				// slow down time iteration
 				const t = timestamp/8;
@@ -94,7 +94,7 @@
 		// black and white random noise
 		{
 			id: 3,
-			name: 'BW White noise',
+			name: 'Noise white noise BW',
 			render: function(x, y, timestamp) {
 				const xi = parseInt(x) & 255;
 				const yi = parseInt(y) & 255;
@@ -113,7 +113,7 @@
 		// color gradient tiling noise
 		{
 			id: 4,
-			name: 'RGB gradient tiling noise',
+			name: 'Noise gradient tiling RGB',
 			render: function(x, y, timestamp) {
 				const xw = x & 255;
 				const yw = y & 255;
@@ -147,7 +147,7 @@
 		// eye burn seizure-tastic animated noise
 		{
 			id: 5,
-			name: 'RGB eyeburn (SEIZURE TIME WARNING)',
+			name: 'Animated - Noise eyeburn RGB (SEIZURE WARNING)',
 			render: function(x, y, timestamp) {
 				const xw = x & 255;
 				const yw = y & 255;
@@ -183,7 +183,7 @@
 		// nice gradient on noise
 		{
 			id: 6,
-			name: 'RGB noise gradient',
+			name: 'Noise gradient RGB',
 			render: function(x, y, timestamp) {
 				const xw = x & 255;
 				const yw = y & 255;
@@ -219,7 +219,7 @@
 		// pixel noise using repeatable lattice
 		{
 			id: 7,
-			name: 'RGB pixel noise',
+			name: 'Noise pixel RGB',
 			render: function(x, y, timestamp) {
 				const latticeSize = 20;
 				const steps = 255;
