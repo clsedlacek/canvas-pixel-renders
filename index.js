@@ -1,5 +1,8 @@
 (() => {
+	let renderCanvas;
 	let currentRenderMode;
+	let currentAnimationFrame;
+	let currentStartTimestamp;
 	let random = [];
 
 	// ken perlin permutation table in original arrangement (0-255 inclusive array 256 length)
@@ -37,6 +40,12 @@
 		if (mode) {
 			currentRenderMode = mode;
 		}
+	}
+
+	// returns copy of render modes list sorted by 
+	function copySortRenderModes(modes) {
+		const sortedModes = modes.slice().sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()));
+		return sortedModes;
 	}
 
 	// linear interpolation
@@ -271,23 +280,38 @@
 	function drawLoop(canvas, timestamp) {
 		drawPixels(canvas, timestamp, currentRenderMode);
 
-		window.requestAnimationFrame((timestamp) => {
+		currentAnimationFrame = window.requestAnimationFrame((timestamp) => {
 			drawLoop(canvas, timestamp);
 		});
 	}
 
-	function initDraw(canvas) {
-		window.requestAnimationFrame((timestamp) => {
-			drawLoop(canvas, timestamp);
+	function stopCurrentAnimation() {
+		if (currentAnimationFrame) {
+			console.log('stopping animation');
+			window.cancelAnimationFrame(currentAnimationFrame);
+			currentAnimationFrame = null;
+		}
+	}
+
+	// startTimestamp optional, defaults to current timestamp
+	function initDraw(canvas, startTimestamp) {
+		stopCurrentAnimation();
+		canvas.width = 500;
+		canvas.height = 500;
+
+		currentAnimationFrame = window.requestAnimationFrame((timestamp) => {
+			currentStartTimestamp = startTimestamp || timestamp;
+			drawLoop(canvas, currentStartTimestamp);
 		});
 	}
 
-	function populateRenderModeOptions(renderModeSelect) {
+	function populateRenderModeOptions(renderModeSelect, modes) {
 		while (renderModeSelect.firstChild) {
 			renderModeSelect.removeChild(renderModeSelect.lastChild);
 		}
-		for (let i=0; i<renderModes.length; i++) {
-			const mode = renderModes[i];
+		const sortedModes = copySortRenderModes(modes);
+		for (let i=0; i<sortedModes.length; i++) {
+			const mode = sortedModes[i];
 			const modeOpt = document.createElement('option');
 			modeOpt.value = mode.id;
 			if (mode.id === currentRenderMode.id) {
@@ -296,14 +320,14 @@
 			}
 			renderModeSelect.appendChild(modeOpt);
 
-			const modeOptTextNode = document.createTextNode(renderModes[i].name || 'Untitled');
+			const modeOptTextNode = document.createTextNode(mode.name || 'Untitled');
 			modeOpt.appendChild(modeOptTextNode);
 		}
 	}
 
-	function initControls() {
+	function initControls(renderCanvas) {
 		const renderModeSelect = document.getElementById('render-mode');
-		populateRenderModeOptions(renderModeSelect);
+		populateRenderModeOptions(renderModeSelect, renderModes);
 		renderModeSelect.addEventListener('change', (e) => {
 			const renderId = parseInt(renderModeSelect.value);
 			if (!isNaN(renderId)) {
@@ -315,16 +339,19 @@
 			e.preventDefault();
 			seedRandom();
 		});
+		const restartRenderButton = document.getElementById('render-restart');
+		restartRenderButton.addEventListener('click', (e) => {
+			e.preventDefault();
+			initDraw(renderCanvas, currentStartTimestamp)
+		})
 	}
 
 	function init() {
-		const canvas = document.getElementById('canvas');
-		canvas.width = 500;
-		canvas.height = 500;
+		renderCanvas = document.getElementById('canvas');
 		seedRandom();
 		setRenderMode(6);
-		initDraw(canvas);
-		initControls();
+		initDraw(renderCanvas);
+		initControls(renderCanvas);
 		console.log('Ready');
 	}
 
